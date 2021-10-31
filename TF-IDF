@@ -1,0 +1,13 @@
+create temporary macro tfidf(tf FLOAT, df_t INT, n_docs INT) tf * (log(10, CAST(n_docs as FLOAT)/max2(1,df_t)) + 1.0);
+
+create table distOwnerIDs as SELECT us_id, SUM(score) AS TotalScore FROM data_stack GROUP BY us_id ORDER BY TotalScore DESC LIMIT 10;
+
+create table mainUSRData as Select HT.us_id,title from data_stack  HT JOIN distOwnerIDs DO on  HT.us_id = DO.us_id
+
+create or replace view mainUSRView as select us_id, eachword from mainUSRData LATERAL VIEW explode(tokenize(title, True)) t as eachword where not is_stopword(eachword);
+
+create or replace view tempView as select us_id, eachword, freq from (select us_id, tf(eachword) as word2freq from mainUSRView group by us_id) t LATERAL VIEW explode(word2freq) t2 as eachword, freq;
+
+create or replace view tfFinalView as select * from (select us_id, eachword, freq,rank()  over (partition by us_id order by freq desc) as rn from tempView as t) as t where t.rn<=10 ;
+
+select * from tfFinalView;
