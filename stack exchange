@@ -1,0 +1,5 @@
+Query select top 50000 * from posts where posts.ViewCount > 30000 AND posts.id NOT IN
+(
+select top 150000 posts.id from posts order by posts.ViewCount DESC
+)
+order by posts.ViewCount DESC;
