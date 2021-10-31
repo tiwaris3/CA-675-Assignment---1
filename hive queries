@@ -1,0 +1,14 @@
+
+create table data_stack (id int , p_id int , answ_id int , score int , view int , body string , us_id int , us_name string , title string) ROW format delimited FIELDS TERMINATED BY ',' TBLPROPERTIES("skip.header.line.count"="1");
+
+load data inpath '/data/add.csv' into table data_stack;
+
+SELECT id, title, score FROM data_stack ORDER BY score DESC LIMIT 10;
+
+SELECT us_id, SUM(score) AS Tot_Sc FROM data_stack GROUP BY us_id ORDER BY Tot_Sc DESC LIMIT 10;
+
+SELECT COUNT (DISTINCT us_id) FROM data_stack WHERE (LOWER(title) LIKE '%cloud%' OR LOWER(body) LIKE '%cloud%');
+
+add jar /home/shivam_tiwari3/hivemall-core-0.4.2-rc.2-with-dependencies.jar;
+
+source /home/shivam_tiwari3/define-all(1).hive;
